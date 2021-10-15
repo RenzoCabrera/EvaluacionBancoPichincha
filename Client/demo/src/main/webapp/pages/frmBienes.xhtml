@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions" >
+<h:head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <f:facet name="first">
+    <meta http-equiv="X-UA-Compatible" content="IE=8" />
+  </f:facet>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+
+  <title>Categoría</title>
+
+
+</h:head>
+<h:body>
+  <ui:composition template="/template/template.xhtml" >
+    <ui:define name="content">
+      <h:form id="form">
+        <p:growl id="message" showDetail="true" />
+
+        <p:panel header="Bien" toggleable="true">
+          <p:commandButton actionListener="#{frmBienes.buscaBienes()}" value="Recuperar Bienes Existentes"  process="@this" update="form" />
+
+          <center>
+            <p:commandButton value="Crear Bien" process="@this" actionListener="#{frmBienes.seteaNuevoBien()}" update=":frmCrea" oncomplete="PF('dlgNuevo').show();" >
+              <f:setPropertyActionListener value="#{null}" target="#{frmBienes.objBien}" />
+            </p:commandButton>
+          </center>
+            <p:commandButton  value="Ingresar Bien Por Lotes" process="@this" actionListener="#{frmBienes.seteaNuevoBien()}" update=":frmBienXLote" oncomplete="PF('dlgBienXLote').show();" >
+              <f:setPropertyActionListener value="#{null}" target="#{frmBienes.objBien}" />
+            </p:commandButton>
+          <br/>
+          <br/>
+          <br/>
+          <p:panel id="panelResultado" header="Resultado de búsqueda Bienes"  >
+            <p:panel header="Datos">
+
+              <p:dataTable id="checkboxDT" var="result" value="#{frmBienes.listBien}"  tableStyle="table-layout:auto;"
+                           selection="#{frmBienes.selectedBienes}" rowKey="#{result.idBien}" selectionPageOnly="false">
+                <p:column selectionMode="multiple" style="width:16px;text-align:center"/>
+                <p:column headerText="Nombre" sortBy="#{result.nombre}"><h:outputText value="#{result.nombre}" /></p:column>
+                <p:column headerText="Categoria" sortBy="#{result.categoria.nombre}"><h:outputText value="#{result.categoria.nombre}" /></p:column>
+                <p:column headerText="Estado" sortBy="#{result.estado}"><h:outputText value="#{result.estado}" /></p:column>
+                <p:column width="50" headerText="Dar de Baja">
+                  <center>
+                    <p:commandButton disabled="#{(result.estado != 'Activo')}"  id="removeButton" update=":frmRemove" oncomplete="PF('dlgRemove').show();" icon="ui-icon-trash" title="Dar de baja">
+                      <f:setPropertyActionListener process="@this" value="#{result.idBien}" target="#{frmBienes.idBien}"/>
+                    </p:commandButton>
+                  </center>
+                </p:column>
+                <f:facet name="footer">
+                  <p:commandButton process=":form" update=":form" icon="ui-icon-trash" value="Dar de Bajas en Lote"
+                                   actionListener="#{frmBienes.eliminaBienesXLotes()}" />
+                </f:facet>
+              </p:dataTable>
+
+            </p:panel>
+
+          </p:panel>
+
+        </p:panel>
+
+      </h:form>
+
+      <!-- CREACION -->
+      <p:dialog id="pnlNuevo" appendTo="@(body)"  modal="true"   widgetVar="dlgNuevo"  showEffect="clip" hideEffect="clip" header="Ingresar Bien" height="300" width="600">
+        <h:form id="frmCrea">
+          <p:growl id="message2" showDetail="true" />
+          <p:panel header="Datos de el Bien" id="toggleable" toggleable="true"  toggleSpeed="500" style="margin-bottom:20px">
+            <p:panelGrid columns="2" >
+              <p:outputLabel style="font-weight:bold" value="Nombre del Bien:*"></p:outputLabel>
+              <p:inputText onblur="ChangeCase(this);" style="font-weight:bold;text-transform: uppercase;" size="70"   id="nombreBien" value="#{frmBienes.nombreBien}"/>
+              <h:outputLabel style="font-weight:bold" value="Escoja Categoria"/>
+              <p:selectOneMenu   style="width:300px" id="categoria"  filter="true" filterText="Filtro" filterMatchMode="contains" label="Seleccione una Categoria" value="#{frmBienes.selectedCategoria}" >
+                <f:selectItem itemLabel="" itemValue="" />
+                <f:selectItems  required="true" value="#{frmBienes.listadoCategorias}" var="cat"  itemValue="#{cat.idCategoria}" itemLabel="#{cat.nombre}" />
+              </p:selectOneMenu>
+            </p:panelGrid>
+
+            <br/>
+            <center>
+              <p:commandButton  id="btnGrabar" value="Grabar"  actionListener="#{frmBienes.creaBien()}" process="nombreBien,categoria,@this"    update=":form,frmCrea"  oncomplete="PF('dlgNuevo').hide();"/>
+            </center>
+            <br/>
+          </p:panel>
+
+        </h:form>
+      </p:dialog>
+
+      <!-- ELIMINACION -->
+      <p:dialog showEffect="explode" appendTo="@(body)"  modal="true"  hideEffect="bounce" id="pnlRemove"  closable="false" widgetVar="dlgRemove" dynamic="true"  appendToBody="true"  resizable="false" draggable="false" header="Dar de baja">
+        <h:form  id="frmRemove">
+          <p:growl id="message" showDetail="true" />
+          <p:panelGrid  columns="1">
+            <p:outputLabel  style="font-weight:bold" value="Está seguro de Dar de Baja al Bien"></p:outputLabel>
+            <p:outputLabel value=""></p:outputLabel>
+          </p:panelGrid>
+          <p:panelGrid columns="2">
+            <p:commandButton  id="btnEliminar" value="Eliminar"  actionListener="#{frmBienes.eliminaBien()}"  process="frmRemove"  update=":form" oncomplete="PF('dlgRemove').hide();" />
+            <p:commandButton value="Cancelar" oncomplete="PF('dlgRemove').hide();" />
+          </p:panelGrid>
+        </h:form>
+      </p:dialog>
+
+      <!-- INGRESAR BIENES X LOTE-->
+      <p:dialog id="bienXLoteDlg" appendTo="@(body)"  modal="true"  widgetVar="dlgBienXLote"   showEffect="clip" hideEffect="clip"	header="Crear Bien X Lote" height="600" width="750">
+        <h:form id="frmBienXLote">
+          <p:growl id="message" showDetail="true" />
+          <p:panel header="Ingresar Bienes">
+            <p:panelGrid columns="4">
+              <p:outputLabel style="font-weight:bold" value="Nombre del Bien:*"></p:outputLabel>
+              <p:inputText onblur="ChangeCase(this);" style="font-weight:bold;text-transform: uppercase;"    id="nombreBien" value="#{frmBienes.nombreBien}"/>
+              <h:outputLabel style="font-weight:bold" value="Escoja Categoria"/>
+              <p:selectOneMenu   style="width:100px" id="categoria"  filter="true" filterText="Filtro" filterMatchMode="contains" label="Seleccione una Categoria" value="#{frmBienes.selectedCategoria}" >
+                <f:selectItem itemLabel="" itemValue="" />
+                <f:selectItems  required="true" value="#{frmBienes.listadoCategorias}" var="cat"  itemValue="#{cat.idCategoria}" itemLabel="#{cat.nombre}" />
+              </p:selectOneMenu>
+              <p:commandButton value="Agregar"  process="frmBienXLote" update="frmBienXLote" actionListener="#{frmBienes.agregarBien()}" />
+            </p:panelGrid>
+            <br />			<br />			<br />
+            <p:dataTable id="addBien"  var="result" value="#{frmBienes.listBienAdd}" tableStyle="table-layout:auto;">
+              <p:column headerText="Nombre de Bien"><h:outputText value="#{result.nombre}" /></p:column>
+              <p:column headerText="Id Categoria"><h:outputText value="#{result.idCategoria}" /></p:column>
+              <f:facet name="footer">
+                <p:commandButton process=":frmBienXLote" update=":form"  value="Ingresar Bien Por Lotes"
+                                 actionListener="#{frmBienes.creaBienXLotes()}" oncomplete="PF('dlgBienXLote').hide();"/>
+              </f:facet>
+            </p:dataTable>
+
+          </p:panel>
+          <br />			<br />			<br />
+          <center><p:commandButton  value="Cerrar"  oncomplete="PF('dlgBienXLote').hide();" update=":form"/></center>
+        </h:form>
+      </p:dialog>
+
+
+
+    </ui:define>
+  </ui:composition>
+</h:body>
+</html>

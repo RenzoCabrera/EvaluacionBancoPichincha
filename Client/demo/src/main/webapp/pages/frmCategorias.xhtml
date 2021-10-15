@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:pe="http://primefaces.org/ui/extensions" >
+<h:head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <f:facet name="first">
+        <meta http-equiv="X-UA-Compatible" content="IE=8" />
+    </f:facet>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+
+    <title>Categoría</title>
+
+
+</h:head>
+<h:body>
+    <ui:composition template="/template/template.xhtml" >
+        <ui:define name="content">
+            <h:form id="form">
+                <p:growl id="message" showDetail="true" />
+
+                <p:panel header="Categoría" toggleable="true">
+                    <p:commandButton actionListener="#{frmCategorias.buscaCategorias()}" value="Recuperar Categorías Existentes"  process="@this" update="form" />
+                    <center>
+                    <p:commandButton value="Crear Categoria" process="@this" actionListener="#{frmCategorias.seteaNuevaCategoria()}" update=":frmCrea" oncomplete="PF('dlgNuevo').show();" >
+                        <f:setPropertyActionListener value="#{true}" target="#{frmCategorias.isVisibleGrabar}" />
+                        <f:setPropertyActionListener value="#{false}" target="#{frmCategorias.isVisibleEditar}" />
+                        <f:setPropertyActionListener value="#{null}" target="#{frmCategorias.objCategorias}" />
+                    </p:commandButton>
+                    </center>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <p:panel id="panelResultado" header="Resultado de búsqueda Categoría"  >
+                        <p:panel header="Datos">
+
+                            <p:dataTable  var="result" value="#{frmCategorias.listCategorias}"  tableStyle="table-layout:auto;">
+
+
+                                <p:column headerText="Nombre" sortBy="#{result.nombre}"><h:outputText value="#{result.nombre}" /></p:column>
+                                <p:column headerText="Estado" sortBy="#{result.nombre}"><h:outputText value="#{result.estado}" /></p:column>
+                                <p:column width="50" headerText="Bienes X Categoria">
+                                    <center>
+                                        <p:commandButton  id="bienes"  update="@this, :frmBienes"  process="@this" actionListener="#{frmCategorias.cargaBienes(result.idCategoria)}"  oncomplete="PF('dlgBienes').show();" icon="ui-icon-document" title="Bienes por Categoría">
+                                            <f:setPropertyActionListener value="#{result.idCategoria}" target="#{frmCategorias.idCategoria}" />
+                                            <f:setPropertyActionListener value="#{result.nombre}" target="#{frmCategorias.nombreCategoria}" />
+                                        </p:commandButton>
+                                    </center>
+                                </p:column>
+                                <p:column   width="50" headerText="Actualizar Categoría">
+                                    <center>
+                                        <p:commandButton id="editButton" process="@this" update=":frmEdit" oncomplete="PF('dlgEdit').show();" icon="ui-icon-pencil" title="Actualizar Categoría">
+                                            <f:setPropertyActionListener value="#{result.nombre}" target="#{frmCategorias.nombreCategoria}" />
+                                            <f:setPropertyActionListener value="#{result.idCategoria}" target="#{frmCategorias.idCategoria}" />
+
+                                        </p:commandButton>
+                                    </center>
+                                </p:column>
+                            </p:dataTable>
+
+                        </p:panel>
+                    </p:panel>
+
+                </p:panel>
+
+            </h:form>
+
+            <!-- CREACION-->
+            <p:dialog id="pnlNuevo" appendTo="@(body)"  modal="true"   widgetVar="dlgNuevo"  showEffect="clip" hideEffect="clip" header="Ingresar Categoría" height="300" width="600">
+                <h:form id="frmCrea">
+                    <p:growl id="message2" showDetail="true" />
+                    <p:panel header="Datos de la Categoría" id="toggleable" toggleable="true"  toggleSpeed="500" style="margin-bottom:20px">
+                        <p:panelGrid columns="4" >
+                            <p:outputLabel style="font-weight:bold" value="Nombre Categoría:*"></p:outputLabel>
+                            <p:inputText onblur="ChangeCase(this);" style="font-weight:bold;text-transform: uppercase;" size="70"   id="nombreCategoria" value="#{frmCategorias.nombreCategoria}"/>
+                        </p:panelGrid>
+
+                        <br/>
+                        <center>
+                            <p:commandButton  id="btnGrabar" value="Grabar"  actionListener="#{frmCategorias.creaCategoria()}" process="nombreCategoria,@this"    update=":form,frmCrea"  oncomplete="PF('dlgNuevo').hide();"/>
+                        </center>
+                        <br/>
+                    </p:panel>
+
+                </h:form>
+            </p:dialog>
+
+            <!-- EDICION -->
+            <p:dialog id="pnlEdit" appendTo="@(body)"  modal="true"   widgetVar="dlgEdit" dynamic="true" draggable="false"  showEffect="clip" hideEffect="clip" header="Actualizar Categoría">
+                <h:form id="frmEdit">
+                    <p:growl id="message" showDetail="true" />
+                    <p:panelGrid columns="2">
+                        <h:inputText rendered="false" readonly="true"  id="id" value="#{frmCategorias.idCategoria}"  size="34"  onblur="ChangeCase(this);" style="font-weight:bold;text-transform: uppercase;" />
+                        <p:outputLabel style="font-weight:bold" value="Nombre:*"></p:outputLabel>
+                        <p:inputText   size="70" id="nombre" value="#{frmCategorias.nombreCategoria}"/>
+
+                    </p:panelGrid>
+                    <br/>
+                    <center>
+                        <p:commandButton id="btnModificar" value="Actualizar"  actionListener="#{frmCategorias.modificaCategoria()}"
+                                         process="id,nombre,@this"  update=":form,frmEdit" oncomplete="PF('dlgEdit').hide();"/>
+                        <p:spacer width="100" height="10" />
+                        <p:commandButton value="Cancelar" oncomplete="PF('dlgEdit').hide();"/>
+                    </center>
+                </h:form>
+            </p:dialog>
+
+            <!-- BIENES POR CATEGORÍA -->
+            <p:dialog id="bienesDlg"  appendTo="@(body)"  modal="true"  widgetVar="dlgBienes"   showEffect="clip" hideEffect="clip"	header="Bienes" height="600" width="750">
+                <h:form id="frmBienes">
+                    <p:growl id="message" showDetail="true" />
+                    <p:panel header="Bienes por Categoría">
+                        <p:panelGrid columns="2">
+                            <h:inputText  rendered="false" readonly="true" id="idBien" value="#{frmCategorias.idCategoria}" size="70" />
+                            <p:outputLabel value="Nombre de la Categori"></p:outputLabel>
+                            <h:inputText readonly="true" id="nombreCategoria" value="#{frmCategorias.nombreCategoria}" size="70" />
+                            <p:outputLabel value="Datos de los bienes"></p:outputLabel>
+                            <h:inputText readonly="true" id="datos" value="#{frmCategorias.datosXcategoria}" size="70" />
+                        </p:panelGrid>
+                    </p:panel>
+                    <br />	<br />
+                    <p:panel header="Bienes de la Categoría">
+
+                        <br />	<br />
+                        <p:dataTable var="result" value="#{frmCategorias.listadoBienes}" tableStyle="table-layout:auto;">
+                            <p:column headerText="Nombre Bien" ><h:outputText value="#{result.nombre}" /></p:column>
+                            <p:column headerText="Estado" ><h:outputText value="#{result.estado}" /></p:column>
+
+                        </p:dataTable>
+                    </p:panel>
+
+                    <br />			<br />			<br />
+                    <center><p:commandButton  value="Cerrar"  oncomplete="PF('dlgBienes').hide();" update=":form"/></center>
+                </h:form>
+            </p:dialog>
+
+
+        </ui:define>
+    </ui:composition>
+</h:body>
+</html>

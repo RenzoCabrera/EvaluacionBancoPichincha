@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title><h:outputText value="Banco Pichincha" /></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+	.ui-widget,
+	.ui-widget .ui-widget { font-size: 10px !important;} </style>
+</h:head>
+<h:body>
+    <p:layout id="templatePlantlla" fullPage="true" resizeTitle="resize">
+        <p:layoutUnit position="north"  header="Banco del Pichincha"  size="120"  resizable="false" closable="false" collapsible="true" >
+            <h:panelGrid columns="3" style="width:100%;border:0px solid transparent">
+                <h:panelGrid columns="1" style="text-align:right;width:100%;border:0px solid transparent">
+                    <h:form>
+                        <p:outputLabel   style="font-weight:bold"  value="Bienvenido: "/>
+
+                    </h:form>
+                </h:panelGrid>
+            </h:panelGrid>
+        </p:layoutUnit>
+        <p:layoutUnit  position="west" size="140" header="Menú" resizable="true" closable="false" collapsible="true">
+            <h:form id="opcionesMenu">
+                <p:menu  model="#{inicioMB.model}"  />
+            </h:form>
+        </p:layoutUnit>
+        <p:layoutUnit id="centro" position="center">
+            <script type="text/javascript">
+				    function ChangeCase(elem)
+				    {
+				        elem.value = elem.value.toUpperCase();
+				    }
+				    function ChangeCaseLower(elem)
+				    {
+				        elem.value = elem.value.toLowerCase();
+				    }
+				</script>
+            <ui:insert name="content"><h:outputLabel value="#{msg.templateContent}" /> </ui:insert>
+
+
+        </p:layoutUnit>
+
+        <p:layoutUnit position="south" resizable="true" id="south">
+        </p:layoutUnit>
+    </p:layout>
+    <p:ajaxStatus style="width:64px;height:64px;position:fixed;right:5px;bottom:5px">
+        <f:facet name="start">
+            <p:graphicImage value="/resources/images/qzOsBtA.gif" />
+        </f:facet>
+    </p:ajaxStatus>
+</h:body>
+</html>
